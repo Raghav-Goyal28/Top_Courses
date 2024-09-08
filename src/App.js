@@ -1,24 +1,60 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import Navbar from  "./components/Navbar";
+import Cards from "./components/Cards"
+import Filter from "./components/Filter"
+import { apiUrl, filterData  } from "./data";
+import { useState,useEffect } from "react";
+import Spinner from "./components/Spinner";
+import {toast} from "react-toastify";
+
+
 
 function App() {
+const[courses,setCourses]=useState(null);
+const [loading, setLoading] = useState(true);
+const [category, setCategory] = useState(filterData[0].title);
+
+async function fetchData(){
+  setLoading(true);
+  try{
+const response=await fetch(apiUrl);
+const output=await response.json();
+//save data into variable
+setCourses(output.data);
+
+  }
+  catch(error){
+toast.error("sommething went wrong");
+  }
+  setLoading(false);
+}
+
+useEffect(() => {
+  fetchData();
+}, [])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <div className="min-h-screen flex flex-col">
+      <div>
+   <Navbar/>
+   </div>
+
+
+   <div >
+   <Filter filterData={filterData}      category={category}
+            setCategory={setCategory}/>
+   </div>
+
+   <div className="w-11/12 max-w-[1200px] 
+        mx-auto flex flex-wrap justify-center items-center min-h-[50vh]">
+   {
+        loading ? (<Spinner/>) :     (<Cards  courses={courses} category={category}/>)
+   }
+   </div>
+
+   </div>
+
+   
   );
 }
 
